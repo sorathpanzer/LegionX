@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+pass open; sleep 1
+
+prefix="/home/sorath/.password-store"
+password_files=( "$prefix"/**/*.gpg )
+password_files=( "${password_files[@]#"$prefix"/}" )
+password_files=( "${password_files[@]%.gpg}" )
+
+wtype -k y y && sleep 0.1
+menu=$("wl-paste" | sed "s/.*\/\///g" | sed "s/^www.//g" | cut -d/ -f1)
+folder=$(find ~/.password-store -maxdepth 2 -name "$menu.gpg" | cut -d/ -f5)
+pwfile=$(pass show "$folder/$menu") || dunstify -t 4000 "$folder/$menu is not in the pass-store!" -i ~/.icons/dunst/terminal.png
+exfile=$(pass show exceptions.conf | sed -n "/$folder\/$menu/,/}/p" )
+username=$(printf "%s" "$pwfile" | grep -Po "^login?: \K(.*)")
+password=$(printf "%s" "$pwfile" | sed -n 1p)
+otpauth=$(printf "%s" "$pwfile" | grep -Po "^otpauth?:")
+
+[[ -n $menu ]] || exit
+
+wtype -k g i
+wl-copy -o -f "$username"
+wtype -k tab
+wl-copy -o -f "$password"
+
+if [ -n "$otpauth" ]; then
+	wl-copy -o -f "$(pass otp "$folder/$menu")"
+	wtype -k Return
+fi

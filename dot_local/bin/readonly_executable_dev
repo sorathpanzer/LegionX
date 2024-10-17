@@ -1,0 +1,10 @@
+#!/usr/bin/env nu
+
+let devShell = ($env.HOME + /.config/dev/)
+
+def "main" [$args: string] {
+  try { rm ($devShell + default.nix) }
+	try { cp ($devShell + $args + .nix) ($devShell + default.nix) } catch { $args + ".nix doesn't exist" }
+	nix-shell $devShell
+	rm ($devShell + default.nix)
+}

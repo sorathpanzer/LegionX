@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+
+# !lock / bar / red / gray / swayswap / vlayout / workspace 
+
+HYPR=$(pidof Hyprland)
+
+# lock()
+# {
+# if [[ -n "$HYPR" ]]; then
+# 	trap 'hyprctl dispatch focuscurrentorlast; hyprctl dispatch focuscurrentorlast' EXIT
+# 	hyprlock
+# fi
+# }
+
+bar()
+{
+	if [[ -n "$HYPR" ]]; then
+	  if [ -n "$(pidof waybar)" ]; then
+	    pkill waybar &
+	    hyprctl keyword general:gaps_in 0
+	    hyprctl keyword general:gaps_out 0
+	  else
+	    waybar &
+	    hyprctl keyword general:gaps_in 5
+	    hyprctl keyword general:gaps_out 5
+	  fi
+	else
+	  if [ -n "$(pidof waybar)" ]; then
+	    pkill waybar &
+	    # swaymsg "gaps inner all set 0"
+	  else
+	    waybar --bar main-bar --config ~/.config/waybar/config.sway &
+	    # swaymsg "gaps inner all set 10"
+	  fi
+	fi
+}
+
+red()
+{
+	gammarelay=$(busctl --user -- get-property rs.wl-gammarelay /outputs/eDP_1 rs.wl.gammarelay Temperature | awk '{print $2}')
+	
+	if [ $gammarelay == "4000" ]; then
+		busctl --user set-property rs.wl-gammarelay / rs.wl.gammarelay Temperature q 4900
+	else
+		busctl --user set-property rs.wl-gammarelay / rs.wl.gammarelay Temperature q 4900
+		busctl --user set-property rs.wl-gammarelay / rs.wl.gammarelay Temperature q 4000
+	fi
+}
+
+gray()
+{
+set -e
+
+cfg=~/.config/hypr
+
+blank="blank.glsl"
+alt="grayscale.glsl"
+
+current="$(hyprctl getoption decoration:screen_shader -j)"
+
+if [[ "$current" =~ (blank|EMPTY) ]] || [[ "$current" == "" ]]; then
+    hyprctl keyword decoration:screen_shader "$cfg/$alt"
+    echo set $alt
+else
+    hyprctl keyword decoration:screen_shader "$cfg/$blank"
+    echo set $blank
+fi	
+}
+
+swayswap()
+{
+	instances=$(pidof kitty | wc -w)
+	
+	if [ "$instances" -eq "4" ]; then
+	  swaymsg "mark --add "_swap", focus down, swap container with mark "_swap", unmark "_swap""
+	else
+	  swaymsg "mark --add "_swap", focus right, swap container with mark "_swap", unmark "_swap""
+	fi
+}
+
+vlayout()
+{
+	if hyprctl getoption general:layout | grep 'master';then
+	  hyprctl keyword general:layout dwindle
+		sleep 0.5 # Temporary solution for bug in Hyprland
+	  hyprctl keyword general:gaps_in 0
+	  hyprctl keyword general:gaps_out 0
+	  hyprctl dispatch layoutmsg preselect l
+	  hyprctl notify 1 1000 "rgb(00FF00)" " DWINDLE LAYOUT"
+	else
+	  hyprctl keyword general:layout master
+	  hyprctl keyword general:gaps_in 5
+	  hyprctl keyword general:gaps_out 5
+	  hyprctl notify 1 1000 "rgb(00FF00)" " MASTER LAYOUT"
+	fi
+}
+
+workspace()
+{
+	if [[ -n "$HYPR" ]]; then
+		
+		hyprctl dispatch killactive
+	
+		sleep 0.005
+		ACTIVEWINDOW=$(hyprctl activewindow)
+		
+		if [ "$ACTIVEWINDOW" == "Invalid" ]; then
+		  #hyprctl dispatch workspace e-1
+		  hyprctl dispatch workspace 1
+		fi
+	else
+		swaymsg "kill"
+		
+		sleep 0.005
+		ACTIVEWINDOW=$(swaymsg -t get_workspaces -p | grep "H\[\]")
+		
+		if [[ -n "$ACTIVEWINDOW" ]]; then
+			swaymsg "workspace 1"
+		fi
+	fi
+}
+
+case "${1}" in
+  bar)        bar ;;
+	red)        red ;;
+	gray)       gray ;;
+	swayswap)   swayswap ;; #hyprswap
+	vlayout)    vlayout ;;
+	workspace)  workspace ;;
+esac

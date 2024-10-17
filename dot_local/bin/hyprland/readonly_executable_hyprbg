@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+HYPR=$(pidof Hyprland)
+
+imv_open()
+{
+  if [[ -n "$HYPR" ]]; then
+    export imv_config=~/.config/imv/config.wall
+    cp -f ~/Imagens/Wallpapers/blackpurple.png ~/.cache/wallhypr && /nix/store/amcf183abxshjr7sva1lmbcjcll1y0jd-swaybg-1.2.1/bin/swaybg -m fill -i ~/.cache/wallhypr &
+    cd ~/Imagens/Wallpapers/
+		hyprctl dispatch workspace emptyn; imv-dir -w HyprWall ~/Imagens/Wallpapers/$(ls [b-z]*; ls -d a*)
+    export imv_config=~/.config/imv/config
+  else
+    export imv_config=~/.config/imv/config.wall
+    cp -f ~/Imagens/Wallpapers/archlight.jpeg ~/.cache/wallsway && swaymsg output "*" background ~/.cache/wallsway fill
+    imv-dir -w HyprWall ~/Imagens/Wallpapers/*
+    export imv_config=~/.config/imv/config
+  fi
+}
+
+set_wallpaper()
+{
+	if [[ -n "$HYPR" ]]; then
+		/nix/store/amcf183abxshjr7sva1lmbcjcll1y0jd-swaybg-1.2.1/bin/swaybg -m fill -i ~/.cache/wallhypr &
+	else
+		swaymsg output "*" background ~/.cache/wallsway fill
+	fi
+}
+
+case "${1}" in
+		"")     imv_open ;;
+    set)    set_wallpaper ;;
+esac

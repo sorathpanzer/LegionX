@@ -1,0 +1,3 @@
+#!/bin/sh
+
+/nix/store/sgkgh96y2ywjb39vwfm4r4saa306b3i2-whatsapp-for-linux-1.6.4/bin/whatsapp-for-linux

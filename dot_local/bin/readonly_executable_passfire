@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+
+pass open; sleep 1
+
+get_username=0
+get_password=0
+get_otp=0
+get_userpass=1
+otp_pause=1
+TABRETURN="tab"
+
+while [[ -n "$1" ]]; do
+	if [[ $1 == "--username" ]]; then
+		get_username=1
+		get_userpass=0
+	elif [[ $1 == "--password" ]]; then
+		get_password=1
+		get_userpass=0
+	elif [[ $1 == "--otp" ]]; then
+		get_otp=1
+		get_userpass=0
+	fi
+	shift
+done
+
+prefix="/home/sorath/.password-store"
+password_files=( "$prefix"/**/*.gpg )
+password_files=( "${password_files[@]#"$prefix"/}" )
+password_files=( "${password_files[@]%.gpg}" )
+
+/nix/store/7pqcsasfpkwxbrg2qsf2d20b0xlrfi9b-wtype-0.4/bin/wtype -k y y && sleep 0.1
+menu=$("/nix/store/spba9cni8gy3sc1hgd53iwkgi0vki9zs-wl-clipboard-2.2.1/bin/wl-paste" | sed "s/.*\/\///g" | sed "s/^www.//g" | cut -d/ -f1)
+folder=$(find ~/.password-store -maxdepth 2 -name "$menu.gpg" | cut -d/ -f5)
+pwfile=$(/nix/store/3yfwv428gcziapm1yvs1p82hs4fyjyl1-password-store-1.7.4/bin/pass show "$folder/$menu") || dunstify -t 4000 "$folder/$menu is not in the pass-store!" -i ~/.icons/dunst/terminal.png
+exfile=$(/nix/store/3yfwv428gcziapm1yvs1p82hs4fyjyl1-password-store-1.7.4/bin/pass show exceptions.conf | sed -n "/$folder\/$menu/,/}/p" )
+username=$(printf "%s" "$pwfile" | grep -Po "^login?: \K(.*)")
+password=$(printf "%s" "$pwfile" | sed -n 1p)
+otpauth=$(printf "%s" "$pwfile" | grep -Po "^otpauth?:")
+
+[[ -n $menu ]] || exit
+
+if [ -f ~/.password-store/exceptions.conf.gpg ]; then
+	otpsleep=$(printf "%s" "$exfile" | grep -Po "otpSleep?: \K(.*)")
+	[ -n "$otpsleep" ] && otp_pause="$otpsleep" || otp_pause="1"
+	echo "$exfile" | grep "twoStages.login" >/dev/null && TABRETURN="Return"
+
+	start_exceptions()
+		{
+			if echo "$exfile" | grep Keys@Start >/dev/null; then
+			KEYS="$(echo "$exfile" | grep Keys@Start | cut -f2 -d':')"
+				sleep 1
+				/nix/store/7pqcsasfpkwxbrg2qsf2d20b0xlrfi9b-wtype-0.4/bin/wtype $KEYS
+			fi
+
+			if echo "$exfile" | grep Tabs@Start >/dev/null; then
+				TABS="$(echo "$exfile" | grep Tabs@Start | cut -f2 -d':')"
+				for i in $(seq $TABS); do
+	    		/nix/store/7pqcsasfpkwxbrg2qsf2d20b0xlrfi9b-wtype-0.4/bin/wtype -k tab
+				done
+			fi
+		}
+
+	middle_exceptions()
+		{
+			if echo "$exfile" | grep Keys@Middle >/dev/null; then
+			KEYS="$(echo "$exfile" | grep Keys@Middle | cut -f2 -d':')"
+				sleep 1.5
+				/nix/store/7pqcsasfpkwxbrg2qsf2d20b0xlrfi9b-wtype-0.4/bin/wtype $KEYS
+			fi
+
+			if echo "$exfile" | grep Tabs@Middle >/dev/null; then
+				TABS="$(echo "$exfile" | grep Tabs@Middle | cut -f2 -d':')"
+				for i in $(seq $TABS); do
+	    		/nix/store/7pqcsasfpkwxbrg2qsf2d20b0xlrfi9b-wtype-0.4/bin/wtype -k tab
+				done
+			fi
+		}
+
+	end_exceptions()
+		{
+			if echo "$exfile" | grep Keys@End >/dev/null; then
+			KEYS="$(echo "$exfile" | grep Keys@End | cut -f2 -d':')"
+				sleep 1
+				/nix/store/7pqcsasfpkwxbrg2qsf2d20b0xlrfi9b-wtype-0.4/bin/wtype $KEYS
+			fi
+		
+			if echo "$exfile" | grep Tabs@End >/dev/null; then
+				TABS="$(echo "$exfile" | grep Tabs@End | cut -f2 -d':')"
+				for i in $(seq $TABS); do
+	    		/nix/store/7pqcsasfpkwxbrg2qsf2d20b0xlrfi9b-wtype-0.4/bin/wtype -k tab
+				done
+			fi
+		}
+fi
+
+	[ $get_username -eq 1 ] && /nix/store/spba9cni8gy3sc1hgd53iwkgi0vki9zs-wl-clipboard-2.2.1/bin/wl-copy "$username"
+	[ $get_password -eq 1 ] && /nix/store/spba9cni8gy3sc1hgd53iwkgi0vki9zs-wl-clipboard-2.2.1/bin/wl-copy "$password"
+	[ $get_otp -eq 1 ] && /nix/store/spba9cni8gy3sc1hgd53iwkgi0vki9zs-wl-clipboard-2.2.1/bin/wl-copy "$(pass otp "$folder/$menu")"
+
+	if [ $get_userpass -eq 1 ]; then
+		/nix/store/7pqcsasfpkwxbrg2qsf2d20b0xlrfi9b-wtype-0.4/bin/wtype -k g i
+		start_exceptions
+		sleep 0.1 && /nix/store/7pqcsasfpkwxbrg2qsf2d20b0xlrfi9b-wtype-0.4/bin/wtype "$(printf '%s' "$username")"
+		/nix/store/7pqcsasfpkwxbrg2qsf2d20b0xlrfi9b-wtype-0.4/bin/wtype -k $TABRETURN
+		middle_exceptions
+	 	sleep 1 && /nix/store/7pqcsasfpkwxbrg2qsf2d20b0xlrfi9b-wtype-0.4/bin/wtype "$(printf '%s' "$password")"
+	 	end_exceptions
+	 	/nix/store/7pqcsasfpkwxbrg2qsf2d20b0xlrfi9b-wtype-0.4/bin/wtype -k Return
+
+	 	if [ -n "$otpauth" ]; then
+	 		sleep $otp_pause
+	 		/nix/store/7pqcsasfpkwxbrg2qsf2d20b0xlrfi9b-wtype-0.4/bin/wtype -k g i
+	 		/nix/store/7pqcsasfpkwxbrg2qsf2d20b0xlrfi9b-wtype-0.4/bin/wtype "$(pass otp "$folder/$menu")"
+	 		/nix/store/7pqcsasfpkwxbrg2qsf2d20b0xlrfi9b-wtype-0.4/bin/wtype -k Return
+	 	fi
+	# fi
+fi

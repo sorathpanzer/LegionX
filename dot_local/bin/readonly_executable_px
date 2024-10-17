@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+edit_pass()
+{
+  pass edit $(pass fzf -s)
+}
+
+get_pass()
+{
+  pass fzf
+}
+
+show_pass()
+{
+  pass show $(pass fzf -s)
+}
+
+show_help()
+{
+  echo "
+    Info: pass helper with fzf support
+
+    px (Edit entry)
+    
+    px [OPTIONS]
+
+    OPTIONS:    
+    -c) Show login & copy password
+    -s) Show credentials"
+}
+
+case "${1}" in
+	"")     edit_pass ;;
+  -c)     get_pass ;;
+  -s)     show_pass ;;
+  -h|--help) show_help ;;
+esac

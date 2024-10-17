@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# 12ft / streamvideo / tofirun / screenshot
+
+12ft()
+{
+	url=$(/nix/store/spba9cni8gy3sc1hgd53iwkgi0vki9zs-wl-clipboard-2.2.1/bin/wl-paste)
+	xdg-open https://12ft.io/$url
+}
+
+stream()
+{
+	echo "mpv --loop $(wl-paste)" >> $HOME/.cache/zsh/history
+	/nix/store/bigw9187d310k8k5n6xj6dibsjxyi3gr-mpv-with-scripts-0.37.0/bin/mpv --loop "$(/nix/store/spba9cni8gy3sc1hgd53iwkgi0vki9zs-wl-clipboard-2.2.1/bin/wl-paste)"	
+}
+
+tofirun()
+{
+	$(cat $HOME/.config/tofi/assets/appmenu | /nix/store/s024fic41zaqncqcpz4gggfv849k73z6-tofi-0.9.1/bin/tofi)
+}
+
+case "${1}" in
+  12ft)       12ft ;;
+	stream)     stream ;;
+	tofirun)    tofirun ;;
+esac

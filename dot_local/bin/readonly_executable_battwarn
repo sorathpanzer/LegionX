@@ -1,0 +1,15 @@
+#!/bin/sh
+
+while true
+do
+  battery_level=`/nix/store/h59iwvglmhjw0zvyqvib8li1jybn8ic7-acpi-1.7/bin/acpi -b | grep -P -o '[0-9]+(?=%)'`
+  cable=`cat /sys/class/power_supply/ADP0/online`
+   if [ $battery_level -le 20 ] && [ $cable -eq 0 ]; then
+      sleep 60
+      /nix/store/rn37a2vii9bkmbkj06s325g46yxd2k8y-dunst-1.11.0/bin/dunstify --urgency=CRITICAL "Battery Low" "Level: ${battery_level}%" -i ~/.icons/dunst/battery-warning.png
+      /nix/store/wsm6077qih9i0fw10872gaibsrzbkz8y-pulseaudio-17.0/bin/paplay ~/.sounds/low_battery.mp3
+      sleep 60
+    else
+      sleep 600
+  fi
+done

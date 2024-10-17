@@ -1,0 +1,16 @@
+#!/bin/sh
+
+echo "{ pkgs, config, ... }:"
+echo ""
+echo "{"
+echo ""
+echo "home.file = {"
+echo "  \".local/bin/\" = {"
+echo ""  
+echo "    executable = true;"
+echo "    text = ''"
+echo "    '';"
+echo "  };"
+echo "};"
+echo ""
+echo "}"

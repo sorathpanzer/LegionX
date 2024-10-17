@@ -1,0 +1,14 @@
+#!/bin/sh
+
+echo "{ pkgs, config, ... }:"
+echo ""
+echo "{"
+echo ""
+echo "programs.XXX = {"
+echo "  enable = true;"
+echo "  settings = {"  
+echo ""
+echo "  };"
+echo "};"
+echo ""
+echo "}"

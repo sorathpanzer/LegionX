@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+HYPR=$(pidof Hyprland)
+COUNT_IMV=$(pgrep imv | wc -l)
+COUNT_MPV=$(pgrep mpv | wc -l)
+
+vlayout()
+{
+cfg=~/.config/hypr
+blank="blank.glsl"
+
+if [[ -n "$HYPR" ]]; then
+  if [ "$COUNT_IMV" == "0" ]; then
+  	hyprctl keyword decoration:screen_shader "$cfg/$blank"
+  fi
+  
+  if [ "$COUNT_IMV" == "2" ]; then
+    if [ -n "$(pidof waybar)" ]; then
+      pkill waybar
+    fi
+    hyprctl keyword general:layout dwindle
+    sleep 0.25 # Temporary solution for bug in Hyprland
+    hyprctl keyword general:gaps_in 0
+    hyprctl keyword general:gaps_out 0
+    hyprctl dispatch layoutmsg preselect r
+    hyprctl notify 1 1000 "rgb(00FF00)" " DWINDLE LAYOUT"
+  fi
+else
+  if [ "$COUNT_IMV" == "2" ]; then
+    if [ -n "$(pidof waybar)" ]; then
+      pkill waybar
+    fi
+  fi
+
+fi
+}
+
+mpvclose()
+{
+	if [[ -n "$HYPR" ]]; then
+	hyprctl dispatch killactive
+	
+	  if [ "$COUNT_MPV" == "1" ]; then
+	    hyprctl dispatch workspace 1
+	  fi
+	else
+	  swaymsg "kill"
+	
+	  if [ "$COUNT_MPV" == "1" ]; then
+	    swaymsg "workspace 1"
+	  fi
+	fi
+}
+
+imvclose()
+{
+	if [[ -n "$HYPR" ]]; then
+	  hyprctl dispatch killactive  
+	  
+	  if [ "$COUNT_IMV" == "2" ]; then
+	    hyprctl keyword general:layout master
+	    hyprctl keyword general:gaps_in 5
+	    hyprctl keyword general:gaps_out 5
+	    hyprctl notify 1 1000 "rgb(00FF00)" " MASTER LAYOUT"
+	  fi
+	  
+	  if [ "$COUNT_IMV" == "1" ]; then
+	    hyprctl dispatch workspace 1
+	  fi
+	else	
+	  swaymsg "kill"
+	
+	  if [ "$COUNT_IMV" == "1" ]; then
+	    swaymsg "workspace 1"
+	  fi
+	fi
+}
+
+case "${1}" in
+	vlayout)    vlayout ;;
+	mpvclose)    mpvclose ;;
+	imvclose)    imvclose ;;
+esac

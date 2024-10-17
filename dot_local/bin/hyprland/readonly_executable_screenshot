@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+
+HYPR=$(pidof Hyprland)
+iDIR="$HOME/.icons/dunst"
+SWAY_FOCUSED=$(swaymsg -t get_tree | /nix/store/7ic2z0yz5hxw7lzz6rxsrdfv72yfy9vv-jq-1.7.1-bin/bin/jq '.. | ((.nodes? + .floating_nodes?) // empty) | .[] | select(.focused and .pid) | .rect | "\(.x),\(.y) \(.width)x\(.height)"')
+
+time=$(date +%Y-%m-%d-%H-%M-%S)
+dir="Imagens/Screenshots"
+file="$(date '+%Y%m%d')-$(date '+%H%M%S').png"
+
+# notify and view screenshot
+notify_cmd_shot="dunstify -h string:x-canonical-private-synchronous:shot-notify -t 1000 -u low -i ${iDIR}/picture.png"
+notify_view() {
+		${notify_cmd_shot} "Screenshot Saved."
+}
+
+# countdown
+countdown() {
+	for sec in $(seq $1 -1 1); do
+    /nix/store/rn37a2vii9bkmbkj06s325g46yxd2k8y-dunst-1.11.0/bin/dunstify -h string:x-canonical-private-synchronous:shot-notify -t 1000 -i "$iDIR"/timer.png "Taking shot in : $sec"
+		sleep 1
+	done
+}
+
+# take shots
+shotnow() {
+	cd ${dir} && /nix/store/1dhb6jnn02w8y8ag1vi06ykzrsw01d28-grim-1.4.1/bin/grim - | tee "$file" | /nix/store/spba9cni8gy3sc1hgd53iwkgi0vki9zs-wl-clipboard-2.2.1/bin/wl-copy
+	notify_view
+}
+
+shot5() {
+	countdown '5'
+	cd ${dir} && /nix/store/1dhb6jnn02w8y8ag1vi06ykzrsw01d28-grim-1.4.1/bin/grim - | tee "$file" | /nix/store/spba9cni8gy3sc1hgd53iwkgi0vki9zs-wl-clipboard-2.2.1/bin/wl-copy
+	notify_view
+}
+
+shot10() {
+	countdown '10'
+	cd ${dir} && /nix/store/1dhb6jnn02w8y8ag1vi06ykzrsw01d28-grim-1.4.1/bin/grim - | tee "$file" | /nix/store/spba9cni8gy3sc1hgd53iwkgi0vki9zs-wl-clipboard-2.2.1/bin/wl-copy
+	notify_view
+}
+
+shotwin() {
+
+	if [[ -n "$HYPR" ]]; then
+		w_pos=$(hyprctl activewindow | grep 'at:' | cut -d':' -f2 | tr -d ' ' | tail -n1)
+		w_size=$(hyprctl activewindow | grep 'size:' | cut -d':' -f2 | tr -d ' ' | tail -n1 | sed s/,/x/g)
+	
+		cd ${dir} && /nix/store/1dhb6jnn02w8y8ag1vi06ykzrsw01d28-grim-1.4.1/bin/grim -g "$w_pos $w_size" - | tee "$file" | /nix/store/spba9cni8gy3sc1hgd53iwkgi0vki9zs-wl-clipboard-2.2.1/bin/wl-copy
+	else
+		cd ${dir} && /nix/store/1dhb6jnn02w8y8ag1vi06ykzrsw01d28-grim-1.4.1/bin/grim -g "$(eval echo $SWAY_FOCUSED)" "$file"
+	fi
+	
+	notify_view
+}
+
+shotarea() {
+	cd ${dir} && /nix/store/1dhb6jnn02w8y8ag1vi06ykzrsw01d28-grim-1.4.1/bin/grim -g "$(/nix/store/y3kfni0d18bkdn6fnj5kksnqnq16a2h5-slurp-1.5.0/bin/slurp -b 1B1F2866 -c E06B74ff -s C778DD0D -w 2)" - | tee "$file" | /nix/store/spba9cni8gy3sc1hgd53iwkgi0vki9zs-wl-clipboard-2.2.1/bin/wl-copy
+	notify_view
+}
+
+if [[ ! -d "$dir" ]]; then
+	mkdir -p "$dir"
+fi
+
+if [[ "$1" == "--now" ]]; then
+	shotnow
+elif [[ "$1" == "--in5" ]]; then
+	shot5
+elif [[ "$1" == "--in10" ]]; then
+	shot10
+elif [[ "$1" == "--win" ]]; then
+	shotwin
+elif [[ "$1" == "--area" ]]; then
+	shotarea
+else
+	echo -e "Available Options : --now --in5 --in10 --win --area"
+fi
+
+if [[ -n "$HYPR" ]]; then
+	hyprctl dispatch submap reset
+fi
+
+/nix/store/wsm6077qih9i0fw10872gaibsrzbkz8y-pulseaudio-17.0/bin/paplay ~/.sounds/camera-shutter.ogg
+exit 0

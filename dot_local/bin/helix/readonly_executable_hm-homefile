@@ -1,0 +1,13 @@
+#!/bin/sh
+
+echo "{ pkgs, config, ... }:"
+echo ""
+echo "{"
+echo ""
+echo "home.file = {"
+echo "  \".config/\".text = ''"
+echo ""  
+echo "'';"
+echo "};"
+echo ""
+echo "}"

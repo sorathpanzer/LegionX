@@ -1,0 +1,448 @@
+#!/usr/bin/env nu
+
+let vault = ($env.HOME + /.config/nupass/vault/)
+# const vault = "/dev/shm/vault/"
+let gpgid = ($vault + .gpg-id)
+
+let config = ($env.HOME + /.config/nupass/config.toml)
+let tmpfile = "/dev/shm/tmp." + (random chars) + ".toml"
+
+def gradient [$args] = {
+    let enable = try { open $config | get theme.enable } catch { true }    
+
+    match $enable {
+        true => { 
+            match $args {
+                "start" => { 
+                    try { open $config 
+                        | get theme.gradient 
+                        | get 0 | str replace "#" "0x" } catch { "0x00F4FC" } }
+                "end" => { 
+                    try { open $config 
+                        | get theme.gradient 
+                        | get 1 
+                        | str replace "#" "0x" } catch { "0xE81CFF" } }
+                "red" => { 
+                    try { open $config
+                        | get theme.error
+                        | str replace "#" "0x" } catch { "0xFE5353"}}
+                "green" => { 
+                    try { open $config
+                        | get theme.highlight
+                        | str replace "#" "0x" } catch { "0xFE5353"}}
+            }
+        }
+        false => { 
+            match $args {
+                "start"|"end"|"red"|"green" => { "0xFFFFFF" }
+            }
+        }  
+    }
+}
+
+let colorize = { ansi gradient --fgstart (gradient start) --fgend (gradient end) }
+let error = { ansi gradient --fgstart (gradient red) --fgend (gradient red) }
+let highlight = { ansi gradient --fgstart (gradient green) --fgend (gradient green) }
+let fuzzer = { str replace $vault "" | str substring ..-4 | do $colorize | input list -f }
+
+def finder [$path: string $args: string] {
+    glob ($path + "{*.gpg,*/*.gpg}") --depth 2 --exclude [.*/*.gpg] 
+        | where $it =~ $args 
+}
+
+def passfile [$path: string $args: string] { 
+    $path + (finder $vault $args | do $fuzzer) 
+}
+
+def "main init" [$args: string = ""] {
+    mkdir -v $vault
+
+    if (not ($gpgid | path exists)) {
+        gpg --full-generate-key
+        
+        let gpgkey = open (ls ~/.gnupg/openpgp-revocs.d 
+            | sort-by -r modified | get 0 | get name) 
+            | head -n 5 | tail -2 | str trim
+        
+        let yes = (input "Is this the correct key? [Y/n] ")
+
+        if not ($yes | str contains 'n') { $gpgkey | lines | first 1 | save -f $gpgid }
+    } else {
+        let gpgkey = open ~/.gnupg/openpgp-revocs.d/* 
+        | each {|row| (head -n 5 | tail -2 | str trim) } 
+        | input list "Select your GPG Key..." -f
+
+        $gpgkey | str replace ".*<(.+)>.*" -r '$1' | lines | last 1 | save -f $gpgid
+    }
+    
+    git -C $vault init
+    git_add_file $vault "Add current contents of password store."
+    "\nPassword store initialized for " + $args | do $colorize
+}
+
+def "main convert" [] {
+    let gpgkey = open ~/.gnupg/openpgp-revocs.d/* 
+    | each {|row| (head -n 5 | tail -2 | str trim) } 
+    | input list "Select your GPG Key..." -f
+    
+    $gpgkey | str replace ".*<(.+)>.*" -r '$1' | lines | last 1 | save -f $gpgid
+    
+    let $temp_dir = '/dev/shm/convpass'
+    mkdir $temp_dir
+    
+    finder $vault "" | each { |file|
+        let $temp_decrypted_file = (($file + ".decrypted"))
+        let $temp_encrypted_file = (($file + ".gpg"))
+    
+        gpg --decrypt --output $temp_decrypted_file $file
+        gpg --encrypt --recipient $gpgkey --output $temp_encrypted_file $temp_decrypted_file
+        mv $temp_encrypted_file $file
+        rm $temp_decrypted_file
+    }
+    
+    rm -r $temp_dir
+    
+    git -C $vault init
+    git_add_file $vault "Convert nupass vault to a new gpgkey."
+    "\nEncryption key update complete." | do $colorize
+}
+
+def "main show" [--login(-l) --password(-p) --otp(-o) --clip(-c) $args: string = ""] {
+    let passfile_error = ("There is no " + ($args | do $error) + " passfile!")
+    let show = match [((finder $vault $args | length) > 1) $otp] {
+        [true,false] => { 
+            try { gpg --quiet -d ((passfile $vault $args | ansi strip) + ".gpg")
+            } catch { return } 
+        }
+        [false,false] => { 
+            try { gpg --quiet -d (finder $vault $args | get 0)
+            } catch { return $passfile_error } 
+        }
+    }
+
+    match $clip { 
+        false => { 
+            match [$login $password $otp] {
+                  [true,false,false] => { try { $show | from toml | get account.login | do $colorize } catch { "Toml syntax error (!)" | do $error } }
+                  [false,true,false] => { try { $show | from toml | get account.password | do $colorize } catch { "Toml syntax error (!)" | do $error } }
+                  [false,false,true] => { try { main otp $args --show } catch { "Toml syntax error (!)" | do $error } }
+                  _ => { try { $show | from toml } catch { "Toml syntax error (!)" | do $error } }
+            }
+        }
+        true => { 
+            match [$login $password $otp] {
+                [true,false,false] => { try { wl-copy ($show | from toml | get account.login) } catch { "Toml syntax error (!)" | do $error } }
+                [false,true,false] => { try { wl-copy ($show | from toml | get account.password) } catch { "Toml syntax error (!)" | do $error } }
+                [false,false,true] => { try { main otp $args } catch { "Toml syntax error (!)" | do $error } } 
+                [false,false,false] => { try { wl-copy ($show | from toml | get account.password) } catch { "Toml syntax error (!)" | do $error } }
+            }
+            "Copied to the clipboard! \n(Will clear after first paste)" | do $colorize
+        }
+    }
+}
+
+def "main otp" [--show(-s) $args: string = ""] {
+    let passfile_error = ("There is no " + ($args | do $error) + " passfile!")
+    
+    let pathfile = ( match ((finder $vault $args| length) > 1) {
+        true => { 
+            try { ((passfile $vault $args) + ".gpg" | ansi strip)
+            } catch { return }
+        }
+        false => { 
+            try { (finder $vault $args | get 0) 
+            } catch { return $passfile_error }
+        }
+    })
+    
+    gpg --quiet -d -o $tmpfile --yes $pathfile
+
+    let otp = try { open -r $tmpfile | from toml | get otp.secret 
+                  } catch { return ((rm $tmpfile 
+                                        | $pathfile 
+                                        | str replace $vault "" 
+                                        | str substring ..-5 
+                                        | do $highlight ) + " doesn't have otp authentication") 
+    }
+    
+    let hash = try { open -r $tmpfile | from toml | get otp.algorithm } catch { "SHA1" }
+    let period = try { open -r $tmpfile | from toml | get otp.period } catch { "30" }
+    let digits = try { open -r $tmpfile | from toml | get otp.digits } catch { "6" }
+    match $show {
+        true => { oathtool -b ("--totp=" + $hash) -s $period -d $digits $otp }
+        false => {
+            wl-copy (oathtool -b ("--totp=" + $hash) -s $period -d $digits $otp)
+            rm $tmpfile
+            "Copied to the clipboard! \n(Will clear after first paste)" | do $colorize
+        }
+    }
+}
+
+def "main edit" [args: string = ""] {
+    let passfile_error = ("There is no " + ($args | do $error) + " passfile!")
+    let pathfile = ( match ((finder $vault $args | length) > 1) {
+        true => { try { ((passfile $vault $args) + ".gpg" | ansi strip)
+                      } catch { return } 
+        }
+        false => { try { (finder $vault $args | get 0) 
+                       } catch { return $passfile_error } 
+        }
+    })
+    
+    gpg --quiet -d -o $tmpfile --yes $pathfile
+    let original_file = md5sum $tmpfile
+    
+    if ($env.EDITOR | is-empty) { $env.EDITOR = "vi" }
+    run-external $env.EDITOR $tmpfile
+    let finished_file = md5sum $tmpfile
+    
+    if ($original_file == $finished_file) {
+        return (print "Password unchanged." | rm $tmpfile) }
+
+      gpg --yes -e -r ((open $gpgid) | str trim) -o $pathfile  $tmpfile 
+      rm $tmpfile  
+      let nufile = $pathfile | str replace $vault "" | str replace ".gpg" ""
+      git_add_file $pathfile ("Register " + $nufile + " as been edited!")
+      "\nFile has been updated!" | do --env $colorize
+}
+
+def "main add" [$args: string = ask] {
+    touch $tmpfile
+
+    '[account]
+    login = ""
+    password = ""
+    url = ""' | save -f $tmpfile
+
+    let filename = ( match ($args == "ask") {
+        true => { input "Name of new register (example.com): " }
+        false => { $args }
+    })
+
+        print "Select a group folder"
+    let group = [ "Create a new Group..." (glob ($vault + *)  --no-file --exclude [.*]) ] 
+        | flatten | str replace $vault "" | input list -f
+
+    let login = input "Set your user login: "
+    let yes = (input "Generate a password? [Y/n]")
+    
+    if not ($yes | str contains 'n') {
+        open $tmpfile --raw | from toml | update account.password (main generate) | to toml | save -f $tmpfile
+    } else {
+        let password = input "Type your password: "
+        open $tmpfile --raw | from toml | update account.password $password | to toml | save -f $tmpfile
+    }   
+
+    open $tmpfile --raw | from toml | update account.login $login | to toml | save -f $tmpfile
+    gpg --yes -e -r ((open $gpgid) | str trim) -o ($vault + $group + "/" + $filename + ".gpg")  $tmpfile 
+    git_add_file ($vault + $group + "/" + $filename + ".gpg") (
+        "Add given password for " + ($group + "/" + $filename) + " to store."
+    )
+    ("\nRegister as been saved at: \n" + $vault + $group + "/" + $filename + ".gpg") 
+        | do $colorize
+}
+
+def "main import" [$args: string = ""] {
+    let $temp_dir = '/dev/shm/convpass'
+    cp ~/.password-store/.gpg-id $vault
+    mkdir $temp_dir
+
+    finder ~/.password-store/ "" | each { |file|
+        print $file
+        let $temp_decrypted_file = ($temp_dir + (random chars) + ".decrypted")
+        let $temp_encrypted_file = ($vault + ($file | str replace ($env.HOME + "/.password-store") ""))
+        gpg --decrypt --output $temp_decrypted_file $file
+        let password = (open $temp_decrypted_file | split row "\n" | get 0)
+        let login = (open $temp_decrypted_file | split row "\n" | get 1 | str replace "login: " "")
+        let otp = (open $temp_decrypted_file | split row "\n" | where $it =~ "^otpauth:")
+        "[account]\n\n" | save -f $temp_decrypted_file 
+        {login: $login password: $password} | to toml | save -af $temp_decrypted_file
+
+        if ($otp | is-not-empty) {
+            "\n[otp]\n\n" | save -af $temp_decrypted_file 
+            $otp | str join "\n" | from url | to toml | sed 's/.*period\"/period/' | save -af $temp_decrypted_file
+        }
+
+        sed -i '/^digits/s/[\"\'']//g' $temp_decrypted_file
+        sed -i '/^period/s/[\"\'']//g' $temp_decrypted_file
+
+        mkdir ($vault + (($file | path dirname) | str replace ($env.HOME + "/.password-store") ""))
+        gpg --yes -e -r ((open $gpgid) | str trim) -o $temp_encrypted_file $temp_decrypted_file 
+        rm $temp_decrypted_file
+    }
+    rm -r $temp_dir
+}
+
+def "main open" [] {
+    mkdir $vault
+    gpgtar --encrypt --output vault.gpg --recipient ((open $gpgid) | str trim) $vault
+    gpgtar --decrypt -C $vault /home/sorath/.config/nupass/vault.gpg
+}
+
+def "main generate" [ --no-symbols(-n) num: int = 15 ] {
+
+    let symbols = ( match $no_symbols {
+        true => { 'A-Za-z0-9' }
+        false => { 'A-Za-z0-9!-?@-}' }
+    })
+
+    open /dev/urandom 
+        | tr -dc $symbols 
+        | head -c(random int 1000000..2000000) 
+        | ^sort -R | head -c  $num
+}
+
+def "main qrcode" [$args: string = ""] {
+    match ($args | is-empty) {
+        true => { (main show | ansi strip | head -n 1) 
+            | qrencode --size 10 -o - | display -title "pass: $2" -geometry +200+200 - }
+        false => { print ("Getting " + $args + " qrcode") 
+            | gpg --quiet -d ($vault + $args + ".gpg") 
+            | head -n 1 | qrencode --size 10 -o - 
+            | display -title "pass: $2" -geometry +200+200 - }
+    }
+}
+
+def "main search" [args: string] {
+    print ("Search Terms: " + $args)
+    finder $vault "" | find $args | lines | str replace $vault "" | str substring ..-5 | do $colorize
+}
+
+def "main grep" [$args] {
+    finder $vault "" | lines | each {|line| gpg --quiet -d --yes $line 
+        | grep --color=always $args
+    print (("\e[1m\e[34m" + $line + "\e[0m")| str replace --all $vault "" 
+        | str replace --all ".gpg" "") } | grep --color=always $args
+}
+
+def "main rm" [$args: string = ""] {
+    let passfile_error = ("There is no " + ($args | do $error) + " passfile!")
+    let show = match ((finder $vault $args | length) > 1) {
+        true => { 
+            try {     
+                (((passfile $vault $args) | ansi strip) + ".gpg")
+            } catch { return } 
+        }
+        false => { 
+            try { 
+                finder $vault $args | get 0
+            } catch { return $passfile_error } 
+        }
+    }
+
+    let yes = input ("Remove " + ($show | str replace $vault "" | str substring ..-5) + " register? [Y/n] ")
+    
+    if ($yes == 'Y' or $yes == 'y' or $yes == '')  {
+        rm $show
+        git -C $vault rm -qr $show
+        git -C $vault commit -m ("Remove " + $show + " from store.")
+        "\n" + ($show | str replace $vault "" | str substring ..-5) + " > as been removed!" | do $colorize
+    } else {
+        "Operation canceled!" | do $error   
+    } 
+}
+
+def "main cp" [$args: string $args2] {
+    let passfile_error = ("There is no " + ($args | do $error) + " passfile!")
+    match ((finder $vault $args | length) == 1) {
+        true => { 
+            try { cp (finder $vault $args | get 0) ($vault + $args2 + ".gpg") 
+            } catch { return $passfile_error } 
+        }
+        false => { 
+            try { cp ((passfile $vault $args | ansi strip) + ".gpg") ($vault + $args2 + ".gpg") 
+            } catch { return $passfile_error } 
+        }
+    }
+}
+
+def "main mv" [$args: string $args2] {
+    let passfile_error = ("There is no " + ($args | do $error) + " passfile!")
+    match ((finder $vault $args | length) == 1) {
+        true => { 
+            try { mv (finder $vault $args | get 0) ($vault + $args2 + ".gpg") 
+            } catch { return $passfile_error } 
+        }
+        false => { 
+            try { mv ((passfile $vault $args | ansi strip) + ".gpg") ($vault + $args2 + ".gpg") 
+            } catch { return $passfile_error } 
+        }
+    }
+}
+
+def "main ls" [$args:string = ""] { 
+    let ls_app = try { open $config | get ls.app } catch { "nushell" }    
+    let nutree = ls ~/.config/nupass/vault/**/* | sort-by modified
+                    | where type == file 
+                    | get name | str replace $vault "" 
+                    | str substring ..-5 | do $colorize 
+        
+    match $ls_app {
+        "nushell" => { $nutree }
+        "tree" => { try { cd $vault; tree | do $colorize } catch { $nutree } }
+        "eza" => { try { cd $vault; eza -fR1 } catch { cd $vault; tree } }
+        _ => { cd $vault; tree | do $colorize }
+    }    
+}
+
+def git_add_file [$args1: string $args2] {
+    git -C $vault add $args1
+    git -C $vault commit -m $args2
+}
+
+def "main version" [] {
+    clear
+    '               
+    ┬──────────────┬─────────────────────────┬
+    │  Version     │          V0.2           │ 
+    │  License     │          Gpl3           │
+    │  Author      │         sorath          │
+    │──────────────│─────────────────────────│
+    │              │ Modern password manager │ 
+    │ Description  │ written in nushell.     │
+    │              │ Compatible with pass    │
+    ┴──────────────┴─────────────────────────┴' | do $colorize 
+    }
+
+def "main help" [] {
+    "
+   Usage:
+	 nupass init [gpg-id]
+	     Initialize new password storage with git support,
+       and use gpg-id for encryption.
+	     Selectively reencrypt existing passwords using new gpg-id.
+   nupass convert
+       Encrypt vault with another gpgkey
+	 nupass [ls] [subfolder]
+	     List passwords.
+	 nupass search pass-names...
+	 	List passwords that match pass-names.
+	 nupass [show] [--login(-l) --password(-p) --clip(-c)] <pass-name>
+	     Get or clipboard existing password.
+	 nupass [otp] <pass-name>
+       Show otp authentication
+	 nupass grep [GREPOPTIONS] search-string
+	     Search for password files containing search-string when decrypted.
+	 nupass add pass-name
+	     Create new register.
+	 nupass edit pass-name
+	     Edit an existing password using { $env.EDITOR = 'vi' }.
+	 nupass generate [--no-symbols,-n] [pass-length]
+	     Only generate a new password of pass-length (doesn't save)
+	 nupass rm pass-name
+	     Remove existing password or directory.
+	 nupass mv old-path new-path
+	     Renames or moves old-path to new-path.
+	 nupass cp old-path new-path
+	     Copies old-path to new-path
+	 nupass git git-command-args...
+	     If the password store is a git repository, execute a git command
+	     specified by git-command-args.
+	 nupass help
+	     Show this text.
+	 nupass version
+	     Show version information.
+    " | do $colorize
+}
+
+def main [] {}

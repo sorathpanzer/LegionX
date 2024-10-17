@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+instances=$(pidof kitty | wc -w)
+kitty -T kitty$instances &
