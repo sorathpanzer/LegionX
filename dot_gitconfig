@@ -1,0 +1,9 @@
+[user]
+	name = sorathpanzer
+	email = sorathpanzer
+[credential]
+	helper = store
+[alias]
+	add-commit = !git add && git commit
+[init]
+	defaultBranch = main

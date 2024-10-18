@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Uninstall
+Exec=env WINEPREFIX="/home/sorath/.mt5" wine C:\\\\users\\\\sorath\\\\AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\Start\\ Menu\\\\Programs\\\\MetaTrader\\ 5\\\\Uninstall.lnk
+Type=Application
+StartupNotify=true
+Path=/home/sorath/.mt5/dosdevices/c:/Program Files/MetaTrader 5
+Icon=654A_uninstall.1
+StartupWMClass=uninstall.exe

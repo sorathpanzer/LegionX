@@ -1,0 +1,45 @@
+[global]
+origin = top-center
+offset = 0x10
+alignment="center"
+follow="mouse"
+font="Roboto 11"
+format="<b>%s</b>%b%p"
+history_length=20
+horizontal_padding=8
+icon_path="/run/current-system/sw/share/icons/hicolor/32x32/actions:/run/current-system/sw/share/icons/hicolor/32x32/animations:/run/current-system/sw/share/icons/hicolor/32x32/apps:/run/current-system/sw/share/icons/hicolor/32x32/categories:/run/current-system/sw/share/icons/hicolor/32x32/devices:/run/current-system/sw/share/icons/hicolor/32x32/emblems:/run/current-system/sw/share/icons/hicolor/32x32/emotes:/run/current-system/sw/share/icons/hicolor/32x32/filesystem:/run/current-system/sw/share/icons/hicolor/32x32/intl:/run/current-system/sw/share/icons/hicolor/32x32/legacy:/run/current-system/sw/share/icons/hicolor/32x32/mimetypes:/run/current-system/sw/share/icons/hicolor/32x32/places:/run/current-system/sw/share/icons/hicolor/32x32/status:/run/current-system/sw/share/icons/hicolor/32x32/stock:/etc/profiles/per-user/sorath/share/icons/hicolor/32x32/actions:/etc/profiles/per-user/sorath/share/icons/hicolor/32x32/animations:/etc/profiles/per-user/sorath/share/icons/hicolor/32x32/apps:/etc/profiles/per-user/sorath/share/icons/hicolor/32x32/categories:/etc/profiles/per-user/sorath/share/icons/hicolor/32x32/devices:/etc/profiles/per-user/sorath/share/icons/hicolor/32x32/emblems:/etc/profiles/per-user/sorath/share/icons/hicolor/32x32/emotes:/etc/profiles/per-user/sorath/share/icons/hicolor/32x32/filesystem:/etc/profiles/per-user/sorath/share/icons/hicolor/32x32/intl:/etc/profiles/per-user/sorath/share/icons/hicolor/32x32/legacy:/etc/profiles/per-user/sorath/share/icons/hicolor/32x32/mimetypes:/etc/profiles/per-user/sorath/share/icons/hicolor/32x32/places:/etc/profiles/per-user/sorath/share/icons/hicolor/32x32/status:/etc/profiles/per-user/sorath/share/icons/hicolor/32x32/stock:/nix/store/s2yxlr8jg6r4i22k6z6ysa1l366hpmfr-hicolor-icon-theme-0.17/share/icons/hicolor/32x32/actions:/nix/store/s2yxlr8jg6r4i22k6z6ysa1l366hpmfr-hicolor-icon-theme-0.17/share/icons/hicolor/32x32/animations:/nix/store/s2yxlr8jg6r4i22k6z6ysa1l366hpmfr-hicolor-icon-theme-0.17/share/icons/hicolor/32x32/apps:/nix/store/s2yxlr8jg6r4i22k6z6ysa1l366hpmfr-hicolor-icon-theme-0.17/share/icons/hicolor/32x32/categories:/nix/store/s2yxlr8jg6r4i22k6z6ysa1l366hpmfr-hicolor-icon-theme-0.17/share/icons/hicolor/32x32/devices:/nix/store/s2yxlr8jg6r4i22k6z6ysa1l366hpmfr-hicolor-icon-theme-0.17/share/icons/hicolor/32x32/emblems:/nix/store/s2yxlr8jg6r4i22k6z6ysa1l366hpmfr-hicolor-icon-theme-0.17/share/icons/hicolor/32x32/emotes:/nix/store/s2yxlr8jg6r4i22k6z6ysa1l366hpmfr-hicolor-icon-theme-0.17/share/icons/hicolor/32x32/filesystem:/nix/store/s2yxlr8jg6r4i22k6z6ysa1l366hpmfr-hicolor-icon-theme-0.17/share/icons/hicolor/32x32/intl:/nix/store/s2yxlr8jg6r4i22k6z6ysa1l366hpmfr-hicolor-icon-theme-0.17/share/icons/hicolor/32x32/legacy:/nix/store/s2yxlr8jg6r4i22k6z6ysa1l366hpmfr-hicolor-icon-theme-0.17/share/icons/hicolor/32x32/mimetypes:/nix/store/s2yxlr8jg6r4i22k6z6ysa1l366hpmfr-hicolor-icon-theme-0.17/share/icons/hicolor/32x32/places:/nix/store/s2yxlr8jg6r4i22k6z6ysa1l366hpmfr-hicolor-icon-theme-0.17/share/icons/hicolor/32x32/status:/nix/store/s2yxlr8jg6r4i22k6z6ysa1l366hpmfr-hicolor-icon-theme-0.17/share/icons/hicolor/32x32/stock"
+icon_position="left"
+idle_threshold=120
+ignore_newline="no"
+indicate_hidden="yes"
+line_height=0
+monitor=0
+padding=8
+separator_color="frame"
+separator_height=2
+show_age_threshold=60
+show_indicators="no"
+shrink="no"
+sort="yes"
+sticky_history="yes"
+transparency=10
+word_wrap="yes"
+history="mod1+n"
+
+[urgency_critical]
+background="#900000"
+foreground="#000000"
+icon="~/.icons/dunst/critical.png"
+timeout=0
+
+[urgency_low]
+background="#000000"
+foreground="#ffffff"
+icon="~/.icons/dunst/normal.png"
+timeout=5
+
+[urgency_normal]
+background="#212121"
+foreground="#ffffff"
+icon="~/.icons/dunst/normal.png"
+timeout=5

@@ -1,0 +1,8 @@
+[manager]
+
+keymap = [
+    { on = [ "<", "z" ],        run = [
+      "shell --block --confirm '/nix/store/dqkj7j7k7aijqs0lpf27xiw1a2rvyqxj-helix-24.03/bin/hx $(fd . ~/.config/LegionX --max-depth 4 --type f | /nix/store/jvgx1h2p9lp60wdakrc5ha3fmv86imxq-fzf-0.53.0/bin/fzf --height 100%)'",
+      "cd ~/.config/LegionX",
+    ],  desc = "Edit home-manager files" },
+]
