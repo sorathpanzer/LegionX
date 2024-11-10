@@ -1,0 +1,107 @@
+theme = "doomnight"
+[editor]
+auto-format = true
+auto-pairs = true
+bufferline = "multiple"
+cursorline = true
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.indent-guides]
+character = "╎"
+render = true
+skip-levels = 1
+
+[editor.lsp]
+display-messages = true
+
+[editor.statusline]
+center = ["file-name"]
+left = ["mode", "spinner"]
+right = ["diagnostics", "version-control", "position", "total-line-numbers", "file-type"]
+separator = "│"
+
+[editor.statusline.mode]
+insert = "INSERT"
+normal = "NORMAL"
+select = "SELECT"
+
+[keys]
+[keys.insert]
+C-down = "copy_selection_on_next_line"
+C-s = "kill_to_line_start"
+C-up = "copy_selection_on_prev_line"
+
+[keys.normal]
+"!" = "paste_after"
+"," = "goto_next_buffer"
+";" = ":run-shell-command"
+"<" = "indent"
+">" = "unindent"
+A-a = "select_all"
+A-c = ["move_next_word_end", "move_prev_word_start", "change_selection"]
+A-down = "jump_forward"
+A-e = ["extend_to_line_bounds", "select_mode", "goto_last_line"]
+A-g = ["extend_to_line_bounds", "select_mode", "goto_file_start"]
+A-s = "save_selection"
+A-up = "jump_backward"
+A-x = ["move_next_word_end", "move_prev_word_start"]
+C = ["move_next_long_word_end", "move_prev_long_word_start", "change_selection"]
+C-down = "copy_selection_on_next_line"
+C-q = ":q!"
+C-up = "copy_selection_on_prev_line"
+C-w = ":wq"
+D = ["select_all", "delete_selection"]
+F1 = "goto_line_start"
+F2 = "goto_line_end"
+S-esc = ["select_all", "delete_selection"]
+V = ["goto_first_nonwhitespace", "extend_to_line_end"]
+X = ["move_next_long_word_end", "move_prev_long_word_start"]
+Y = ["select_all", ":clipboard-yank", "yank"]
+d = [":clipboard-yank", "delete_selection"]
+del = "delete_selection"
+esc = ["collapse_selection", "keep_primary_selection"]
+p = ["move_visual_line_down", ":clipboard-paste-before"]
+x = ["extend_to_line_bounds", "select_mode"]
+y = [":clipboard-yank", "yank"]
+"ª" = "record_macro"
+"º" = "replay_macro"
+
+[keys.normal."+"]
+"+" = "toggle_comments"
+
+[keys.normal.e]
+d = [":insert-output date", "collapse_selection", "insert_at_line_end"]
+e = [":append-output hm-executable", "collapse_selection", "insert_at_line_end"]
+f = [":append-output hm-homefile", "collapse_selection", "insert_at_line_end"]
+p = [":append-output hm-programs", "collapse_selection", "insert_at_line_end"]
+
+[keys.normal.space]
+C = ":buffer-close!"
+c = ":buffer-close"
+d = ["extend_line_below", "delete_selection"]
+g = "goto_last_line"
+space = "file_picker"
+w = ":wq"
+x = ["move_next_long_word_end", "move_prev_long_word_start"]
+y = ["extend_line_below", ":clipboard-yank"]
+
+[keys.select]
+C-down = "copy_selection_on_next_line"
+C-up = "copy_selection_on_prev_line"
+F1 = "goto_line_start"
+F2 = "goto_line_end"
+d = [":clipboard-yank", "delete_selection"]
+esc = ["collapse_selection", "normal_mode"]
+y = [":clipboard-yank", "yank", "collapse_selection", "normal_mode"]
+"ª" = "record_macro"
+"º" = "replay_macro"
+[keys.select."+"]
+"+" = "toggle_comments"
+
+[keys.select.space]
+g = "goto_last_line"
+o = ":pipe awk '{print $9,$8,$7,$6,$5,$4,$3,$2,$1}'"

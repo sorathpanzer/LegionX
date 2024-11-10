@@ -1,6 +1,5 @@
 set $mod Mod4
 # set $menu hyprtools tofirun
-# set $menu tofi-drun -c ~/.config/tofi/config-box
 set $menu rofi -show drun -theme ~/.config/rofi/launcher.rasi
 set $term kitty
 set $wezterm wezterm start -- nvim ~/Documentos/Vault/index.norg

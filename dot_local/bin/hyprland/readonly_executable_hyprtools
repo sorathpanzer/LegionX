@@ -11,7 +11,7 @@
 stream()
 {
 	echo "mpv --loop $(wl-paste)" >> $HOME/.cache/zsh/history
-	/nix/store/bigw9187d310k8k5n6xj6dibsjxyi3gr-mpv-with-scripts-0.37.0/bin/mpv --loop "$(/nix/store/spba9cni8gy3sc1hgd53iwkgi0vki9zs-wl-clipboard-2.2.1/bin/wl-paste)"	
+	/nix/store/6ra22f747m99v22p7kxp7597w3943fcc-mpv-with-scripts-0.37.0/bin/mpv --loop "$(/nix/store/spba9cni8gy3sc1hgd53iwkgi0vki9zs-wl-clipboard-2.2.1/bin/wl-paste)"	
 }
 
 tofirun()

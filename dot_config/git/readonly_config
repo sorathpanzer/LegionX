@@ -1,0 +1,5 @@
+[alias]
+	add-commit = "!/nix/store/vdd8ccp9x69v7kp5g9khq7j43n6dqf16-git-2.44.1/bin/git add && /nix/store/vdd8ccp9x69v7kp5g9khq7j43n6dqf16-git-2.44.1/bin/git commit"
+
+[user]
+	email = "sorathpanzer@gmail.com"

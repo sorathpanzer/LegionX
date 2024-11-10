@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+echo "Start position:"
+read start
+echo "End position:"
+read end
+echo "Rename to:"
+read name
+ffmpeg -i "$(ls | fzf)" -ss $start -to $end -c copy $name.mp4

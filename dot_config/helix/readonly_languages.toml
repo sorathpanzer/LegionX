@@ -1,0 +1,48 @@
+[[language]]
+auto-format = true
+language-servers = ["marksman"]
+name = "markdown"
+
+[language.formatter]
+args = ["--parser", "markdown"]
+command = "prettier"
+
+[[language]]
+auto-format = false
+language-servers = ["rust-analyzer"]
+name = "rust"
+
+[[language]]
+auto-format = false
+language-servers = ["haskell-language-server"]
+name = "haskell"
+
+[[language]]
+auto-format = true
+language-servers = ["taplo"]
+name = "toml"
+
+[language.formatter]
+args = ["fmt", "-o", "column_width=120", "-"]
+command = "taplo"
+
+[[language]]
+auto-format = true
+language-servers = ["yaml-language-server"]
+name = "yaml"
+
+[language.formatter]
+args = ["--stdin-filepath", "file.yaml"]
+command = "prettier"
+
+[language-server.rust-analyzer.config]
+[language-server.rust-analyzer.config.cargo]
+allFeatures = true
+
+[language-server.rust-analyzer.config.check]
+args = ["--", "-W", "clippy::pedantic"]
+command = "clippy"
+features = "all"
+
+[language-server.rust-analyzer.config.procMacro]
+enable = true

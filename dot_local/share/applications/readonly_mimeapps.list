@@ -1,0 +1,18 @@
+[Added Associations]
+text/pdf=org.pwmt.zathura.desktop
+
+[Default Applications]
+application/pdf=org.pwmt.zathura.desktop
+image/bmp=hyprimv.desktop
+image/gif=hyprimv.desktop
+image/jpeg=hyprimv.desktop
+image/png=hyprimv.desktop
+image/webp=hyprimv.desktop
+text/html=brave.desktop
+x-scheme-handler/about=brave.desktop
+x-scheme-handler/http=brave.desktop
+x-scheme-handler/https=brave.desktop
+x-scheme-handler/tg=userapp-Telegram Desktop-ZZSVU1.desktop
+x-scheme-handler/unknown=brave.desktop
+
+[Removed Associations]

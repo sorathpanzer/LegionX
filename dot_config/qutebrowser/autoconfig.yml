@@ -17,6 +17,7 @@ settings:
     '*://latenightlovers.com/*': true
     '*://lens.google.com/*': true
     '*://login.live.com/*': true
+    '*://mundoacompanhantes.com/*': true
     '*://poloniex.com/*': true
     '*://pplware.sapo.pt/*': true
     '*://rede-expressos.pt/*': true

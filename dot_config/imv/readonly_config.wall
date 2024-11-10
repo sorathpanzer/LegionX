@@ -1,0 +1,53 @@
+[options]
+
+suppress_default_binds = true
+
+[binds]
+
+# Image navigation
+gg = goto 1
+<Shift+G> = goto -1
+
+# Panning
+<Ctrl+Up> = pan 0 10
+<Ctrl+Down> = pan 0 -10
+<Ctrl+Right> = pan 10 0
+<Ctrl+Left> = pan -10 0
+
+<plus> = zoom 1
+<kp_plus> = zoom 1
+<Up> = zoom 1
+<minus> = zoom -1
+<kp_minus> = zoom -1
+<Down> = zoom -1
+#a = zoom actual
+
+# Rotate Clockwise by 90 degrees
+<less> = rotate by 90
+<greater> = rotate by -90
+
+# Other commands
+x = close
+f = fullscreen
+v = overlay
+p = exec echo $imv_current_file
+w = center
+s = scaling next
+<Shift+S> = upscaling next
+r = reset
+<backslash> = flip horizontal
+
+# Gif playback
+<period> = next_frame
+<space> = toggle_playing
+
+# Slideshow control
+t = slideshow +1
+<Shift+T> = slideshow -1
+
+q = exec hyprimpv imvclose
+bg = exec wal -qi "$imv_current_file"
+dd = exec /nix/store/pmrq09ip8yx2r0288cf0l1gnkfx86r7n-trash-cli-0.24.4.17/bin/trash-put "$imv_current_file"
+at = exec cp $imv_current_file ~/Imagens/x
+<Right> = next; exec [ -x $(pidof Hyprland) ] && (cp -f "$imv_current_file" ~/.cache/wallsway) || (cp -f "$imv_current_file" ~/.cache/wallhypr); exec hyprbg set
+<Left> = prev; exec [ -x $(pidof Hyprland) ] && (cp -f "$imv_current_file" ~/.cache/wallsway) || (cp -f "$imv_current_file" ~/.cache/wallhypr); exec hyprbg set

@@ -1,0 +1,118 @@
+[
+  {
+    "battery": {
+      "format": "<span size='13000' foreground='#B1E3AD'>{icon}</span> {capacity}%",
+      "format-alt": "<span size='13000' foreground='#B1E3AD'>{icon} </span> {time}",
+      "format-charging": "<span size='13000' foreground='#B1E3AD'>  </span>{capacity}%",
+      "format-critical": "<span size='13000' foreground='#E38C8F'>{icon}</span> {capacity}%",
+      "format-full": "<span size='13000' foreground='#B1E3AD'>  </span>{capacity}%",
+      "format-icons": [
+        "  ",
+        "  ",
+        "  ",
+        "  ",
+        "  "
+      ],
+      "format-plugged": "<span size='13000' foreground='#B1E3AD'>  </span>{capacity}%",
+      "format-warning": "<span size='13000' foreground='#B1E3AD'>{icon}</span> {capacity}%",
+      "states": {
+        "critical": 15,
+        "warning": 30
+      },
+      "tooltip-format": "{time}"
+    },
+    "clock": {
+      "format": "<span foreground='#C6AAE8'>  </span>{:%a %d %H:%M}",
+      "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+    },
+    "cpu": {
+      "format": "︁ {}%",
+      "interval": 5,
+      "max-length": 10,
+      "tooltip": true
+    },
+    "disk": {
+      "format": "︁ {}%",
+      "interval": 60,
+      "max-length": 10,
+      "tooltip": true
+    },
+    "height": 25,
+    "sway/workspaces": {
+      "active-only": false,
+      "all-outputs": true,
+      "disable-scroll": true,
+      "format": "{icon}",
+      "format-icons": {
+        "1": "",
+        "2": "",
+        "3": "",
+        "4": "",
+        "5": "",
+        "6": "",
+        "default": "",
+        "urgent": ""
+      }
+    },
+    "memory": {
+      "format": "<span font='Font Awesome 5 Free 9'>︁</span> {used:0.1f}G/{total:0.1f}G",
+      "interval": 15,
+      "tooltip": true
+    },
+    "modules-center": [
+      "sway/workspaces"
+    ],
+    "modules-left": [
+      "sway/window"
+    ],
+    "modules-right": [
+      "disk",
+      "memory",
+      "temperature",
+      "network",
+      "custom/vpn",
+      "pulseaudio",
+      "battery",
+      "clock"
+    ],
+    "network": {
+      "format-disconnected": "<span size='13000' foreground='#F2CECF'> </span>Disconnected",
+      "format-ethernet": "<span size='13000' foreground='#F2CECF'>󰤭</span> Disconnected",
+      "format-linked": "{ifname} (No IP) ",
+      "format-wifi": "<span size='13000' foreground='#F2CECF'>  </span>{essid}",
+      "tooltip-format-wifi": "Signal Strenght: {signalStrength}%"
+    },
+    "position": "top",
+    "pulseaudio": {
+      "format": "<span size='13000' foreground='#EBDDAA'>{icon}</span> {volume}%",
+      "format-icons": {
+        "car": " ",
+        "default": [
+          " ",
+          " "
+        ],
+        "hands-free": " ",
+        "headphone": " ",
+        "headset": " ",
+        "phone": " ",
+        "portable": " "
+      },
+      "format-muted": "<span size='14000' foreground='#EBDDAA'></span> Muted",
+      "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
+    },
+    "temperature": {
+      "critical-threshold": 75,
+      "format": "{icon} {temperatureC}°",
+      "format-icons": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+      "interval": 5,
+      "tooltip": false
+    }
+  }
+]

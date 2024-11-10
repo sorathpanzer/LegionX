@@ -1,0 +1,52 @@
+add_newline = true
+format = "$character$all$cmd_duration"
+right_format = "$git_branch$git_status"
+
+[character]
+error_symbol = "[➜](bold red)"
+success_symbol = "[➜](bold green)"
+
+[cmd_duration]
+format = "took [$duration](bold yellow) "
+min_time = 30000
+
+[directory]
+home_symbol = "🏠"
+read_only = " "
+style = "#47fea4"
+truncation_length = 1
+truncation_symbol = "  "
+
+[git_branch]
+format = "(bold blue)[](bold blue)[ $branch(:$remote_branch)]($style)[](bold blue) "
+style = "bold italic blue"
+symbol = " "
+
+[git_status]
+ahead = "🏎💨"
+behind = "😰"
+conflicted = "🏳"
+deleted = "([$count deleted ](italic red))"
+disabled = false
+diverged = "😵"
+format = "(  $up_to_date$staged$modified$renamed$deleted$untracked)($style)"
+modified = "([$count modified ](italic fg:#47fea4))"
+renamed = "([$count renamed ](italic green))"
+staged = "([$count modified ](italic green))"
+stashed = "📦"
+style = "red"
+untracked = "([$count untracked ](italic fg:#47fea4))"
+up_to_date = " "
+
+[line_break]
+disabled = false
+
+[nix_shell]
+symbol = " "
+
+[package]
+disabled = true
+
+[sudo]
+style = "bold green"
+symbol = "👩‍💻 "

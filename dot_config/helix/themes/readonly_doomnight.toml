@@ -1,0 +1,47 @@
+inherits = "tokyonight_moon"
+
+["ui.background"]
+bg = "transparent"
+fg = "foreground"
+
+["ui.cursor.primary"]
+bg = "#AE92E3"
+fg = "background_highlight"
+
+["ui.cursorline.primary"]
+bg = "background_highlight"
+
+["ui.help"]
+bg = "transparent"
+fg = "foreground"
+
+["ui.menu"]
+bg = "transparent"
+fg = "foreground"
+
+["ui.popup"]
+bg = "transparent"
+fg = "foreground"
+
+["ui.selection.primary"]
+bg = "#46506d"
+
+["ui.statusline"]
+bg = "#222436"
+fg = "#999999"
+
+["ui.statusline.inactive"]
+bg = "background_menu"
+fg = "#737ba5"
+
+["ui.text"]
+bg = "transparent"
+fg = "foreground"
+
+["ui.virtual.jump-label"]
+fg = "red"
+modifiers = ["bold"]
+
+["variable.other.member"]
+fg = "#AE92E3"
+modifiers = ["bold"]
