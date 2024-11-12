@@ -278,7 +278,7 @@ def ghs [$args: string] {
 def gta [$args1: string = "LegionX" $args2: string = "up"] {
   git add .
   git commit -m $args2
-  git push (https://github.com/sorathpanzer/ + $args1) main
+  git push ("https://github.com/sorathpanzer/" + $args1) main
 }
 
 source /home/sorath/.cache/zoxide/init.nu
