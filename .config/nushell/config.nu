@@ -235,10 +235,10 @@ keybindings: [
    | append /home/sorath/.cargo/bin
 )
 
-$env.EDITOR = "/nix/store/h0cn28h7mvkj1vwbdj4zkzkailkwr1i0-helix-24.03/bin/hx"
-$env.BROWSER = "/nix/store/lx4ld5j3n23v835y1ycg1hd30j31pb9n-librewolf-131.0.2-1/bin/librewolf"
-$env.TERMINAL = "/nix/store/3861xns0bxs2z2slxk2kfffl52h98pmf-foot-1.17.2/bin/kitty"
-$env.READER = "/nix/store/xha3fz4fl6yk0bdiqmch2q3jxv5s93lf-zathura-with-plugins-0.5.5/bin/zathura"
+$env.EDITOR = "hx"
+$env.BROWSER = "librewolf"
+$env.TERMINAL = "kitty"
+$env.READER = "zathura"
 
 $env.XDG_CONFIG_HOME = "/home/sorath/.config"
 $env.XDG_DATA_HOME = "/home/sorath/.local/share"
@@ -250,14 +250,14 @@ $env.PASSWORD_STORE_EXTENSIONS_DIR = "/home/sorath/.config/Pass/"
 $env.GTK_THEME = "Sweet-nova:dark"
 $env._JAVA_AWT_WM_NONREPARENTING = 1
 
-def tg [] { cd /home/sorath/.config/LegionX | /nix/store/46jna9h25khan7lj0yg5s31ik2rbpfdd-gitui-0.26.3/bin/gitui }
+def tg [] { cd /home/sorath/.config/LegionX | gitui }
 
 def mp3 [] {
-  yt-dlp -x --audio-format mp3 (/nix/store/spba9cni8gy3sc1hgd53iwkgi0vki9zs-wl-clipboard-2.2.1/bin/wl-paste)
+  yt-dlp -x --audio-format mp3 (wl-paste)
 }
 
 def mp4 [] {
-  yt-dlp (/nix/store/spba9cni8gy3sc1hgd53iwkgi0vki9zs-wl-clipboard-2.2.1/bin/wl-paste)
+  yt-dlp (wl-paste)
 }
 
 def l [] {
@@ -265,9 +265,9 @@ def l [] {
 }
 
 def fwupd [] {
-  sudo /nix/store/4l5m53bigcd02r3s0jv4ixd95fawwslg-fwupd-1.9.19/bin/fwupdmgr refresh --force
-  sudo /nix/store/4l5m53bigcd02r3s0jv4ixd95fawwslg-fwupd-1.9.19/bin/fwupdmgr get-updates
-  sudo /nix/store/4l5m53bigcd02r3s0jv4ixd95fawwslg-fwupd-1.9.19/bin/fwupdmgr update
+  sudo fwupdmgr refresh --force
+  sudo fwupdmgr get-updates
+  sudo fwupdmgr update
 }
 
 def ghs [$args: string] {
@@ -275,6 +275,11 @@ def ghs [$args: string] {
   ghc -Wall -Werror -no-keep-hi-files -no-keep-o-files $args
 }
 
+def gta [$args1: string = "LegionX" $args2: string = "up"] {
+  git add .
+  git commit -m $args2
+  git push (https://github.com/sorathpanzer/ + $args1) main
+}
 
 source /home/sorath/.cache/zoxide/init.nu
 
@@ -294,14 +299,14 @@ source /home/sorath/.cache/carapace/init.nu
 
 alias apg = apg -a 1 -n1 -m
 alias calc = qalc
-alias check = /nix/store/rir8xiivx1c3p3va606hfnh7zdaacm9i-shellcheck-0.10.0-bin/bin/shellcheck --shell=bash --exclude=SC2086,SC2016,SC1091
+alias check = shellcheck --shell=bash --exclude=SC2086,SC2016,SC1091
 alias diff = delta
-alias dua = /nix/store/2i4miivwby2cfcc91a18swxp3i86bc03-dua-2.29.0/bin/dua i
-alias fzf = /nix/store/aflkybxcxzm4fxnan2fg9z4d8dyd4qnb-fzf-0.52.1/bin/fzf -m
+alias dua = dua i
+alias fzf = fzf -m
 alias gparted = sudo -e gparted
 alias grep = grep -i
-alias gt = /nix/store/46jna9h25khan7lj0yg5s31ik2rbpfdd-gitui-0.26.3/bin/gitui
+alias gt = gitui
 alias hm = hx /home/sorath/.config/LegionX/profiles/home.nix
-alias nx = /nix/store/zdz6vzi4fgrvbpp2sp7xay95pb9jik82-nvd-0.2.3/bin/nvd diff ...(ls /nix/var/nix/profiles/system-*-link | get name | drop 1 | last 1) /run/current-system
+alias nx = nvd diff ...(ls /nix/var/nix/profiles/system-*-link | get name | drop 1 | last 1) /run/current-system
 alias qr = qrencode -s 6 -l H -o "text.png"
 alias xpg = gpg -c --no-symkey-cache --cipher-algo AES256
