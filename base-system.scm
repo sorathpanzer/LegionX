@@ -40,30 +40,8 @@
   ;; under their own account: use 'guix search KEYWORD' to search
   ;; for packages and 'guix install PACKAGE' to install a package.
   (packages (append (specifications->packages (list 
-	"age" "bat" "bridge-utils" "btrfs-progs" 
-	"calibre" ;;"chezmoi"
-	"delta"
-	"elogind" "entr"
-	"fd" "ffmpeg" "ffmpegthumbnailer" "file" "fzf"
-	"glibc-locales"
-	"imagemagick" "imv" "kdenlive" "keepassxc" "kitty"
-	"light" "libmtp" "libreoffice" "libvirt" "lm-sensors"
-	"ntfs-3g" "nushell"
-	"oath-toolkit" "ovmf"
-	"pandoc" "poppler" "rust-adblock" "pulseaudio"
-	"password-store" "pass-otp"
-	"qrencode"
-	"ripgrep" "rofi"
-	"seatd" "skim" "spice" "swaybg" "swayfx"
-	"telegram-desktop" "tofi" "tree"
-	"udiskie" "usbutils" "unzip" 
-	"virt-manager"
-	"wl-clipboard" "wtype"
-	"xdg-user-dirs" "xdg-utils" "xdg-desktop-portal"
-	"yt-dlp"
-	"zip"
-	"rust" "rust-cargo" "rust-analyzer" "rust-clippy"
-	"ghcid" "cabal-install" "ghc-turtle"	))
+
+	))
                     %base-packages))
 
   ;; Below is the list of system services.  To search for available
