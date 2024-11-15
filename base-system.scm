@@ -11,7 +11,7 @@
 ;; used in this configuration.
 ;; (use-modules (gnu))
 
-(define-module (config systems base-system)
+(define-module (base-system)
   #:use-module (gnu)
   #:use-module (guix)
   #:export (base-system))
