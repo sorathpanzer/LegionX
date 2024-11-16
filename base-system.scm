@@ -11,14 +11,19 @@
 ;; used in this configuration.
 ;; (use-modules (gnu))
 
-(define-module (base-system)
-  #:use-module (gnu)
-  #:use-module (guix)
-  #:export (base-system))
+(use-modules (gnu)
+             (guix)
+             (gnu packages shells))
 
 (use-service-modules desktop networking)
 
 (operating-system
+  (environment-variables
+   (list
+    (environment-variable
+     "PATH"
+     (string-append (getenv "HOME") "/.config/guix/current/bin/guix:"
+                    (getenv "PATH")))))
   (locale "pt_PT.utf8")
   (timezone "Europe/Lisbon")
   (keyboard-layout (keyboard-layout "pt"))
@@ -33,6 +38,7 @@
                   (comment "Sorath")
                   (group "users")
                   (home-directory "/home/sorath")
+                  (shell (file-append nushell "/bin/nu"))
                   (supplementary-groups '("wheel" "netdev" "audio" "video" "seat")))
                 %base-user-accounts))
 
@@ -40,7 +46,30 @@
   ;; under their own account: use 'guix search KEYWORD' to search
   ;; for packages and 'guix install PACKAGE' to install a package.
   (packages (append (specifications->packages (list 
-
+	  "age" "bat" "bridge-utils" "btrfs-progs" 
+	  "calibre" ;;"chezmoi"
+	  "delta"
+	  "elogind" "entr"
+	  "fd" "ffmpeg" "ffmpegthumbnailer" "file" "fzf"
+	  "glibc-locales"
+	  "imagemagick" "imv" "kdenlive" "keepassxc" "kitty"
+	  "light" "libmtp" "libreoffice" "libvirt" "lm-sensors"
+	  "ntfs-3g" "nushell"
+	  "oath-toolkit" "ovmf"
+	  "pandoc" "poppler" "rust-adblock" "pulseaudio"
+	  "password-store" "pass-otp"
+	  "qrencode"
+	  "ripgrep" "rofi"
+	  "seatd" "skim" "spice" "swaybg" "swayfx"
+	  "telegram-desktop" "tofi" "tree"
+	  "udiskie" "usbutils" "unzip" 
+	  "virt-manager"
+	  "wl-clipboard" "wtype"
+	  "xdg-user-dirs" "xdg-utils" "xdg-desktop-portal"
+	  "yt-dlp"
+	  "zip"
+	  "rust" "rust-cargo" "rust-analyzer" "rust-clippy"
+	  "ghcid" "cabal-install" "ghc-turtle"
 	))
                     %base-packages))
 
@@ -49,8 +78,13 @@
   (services
    (append (list (service network-manager-service-type)
                  (service wpa-supplicant-service-type)
-		 (service seatd-service-type)
-                 (service ntp-service-type))
+		             (service seatd-service-type)
+                 (service ntp-service-type)
+                 (service mingetty-service-type
+                 (mingetty-configuration
+                   (tty "tty3")   ; Enable autologin on tty3
+                   (auto-login "sorath"))))
+                 
 
            ;; This is the default list of services we
            ;; are appending to.
@@ -61,7 +95,7 @@
                 (keyboard-layout keyboard-layout)))
   (swap-devices (list (swap-space
                         (target (uuid
-                                 "9e157485-9e34-4ff5-8251-d9e97faf6bff")))))
+                                 "282cfd29-c616-449c-8622-ea346ac650b9")))))
 
   ;; (environment-variables
   ;; '(("XDG_RUNTIME_DIR" . ,(string-append "/tmp/" (getpw (getuid) "name") "-runtime-dir"))))
@@ -71,12 +105,12 @@
   ;; by running 'blkid' in a terminal.
   (file-systems (cons* (file-system
                          (mount-point "/boot/efi")
-                         (device (uuid "C8A6-DE12"
+                         (device (uuid "09C5-28ED"
                                        'fat32))
                          (type "vfat"))
                        (file-system
                          (mount-point "/")
                          (device (uuid
-                                  "eb3ab329-cae1-40cd-beae-7f89d95887c2"
+                                  "c38345d0-e691-42d5-be14-d18f8056e87d"
                                   'ext4))
                          (type "ext4")) %base-file-systems)))
